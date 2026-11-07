@@ -182,7 +182,13 @@ class MemInfoView(context: Context, attrs: AttributeSet?) :
                 view.getTotalBackgroundMemory()
 
             val availResult = Formatter.formatShortFileSize(view.context, freeMemory)
-            val totalResult = Formatter.formatShortFileSize(view.context, view.memInfo.totalMem)
+            val totalMem = view.memInfo.totalMem
+            val swapTotal = view.memInfoReader.swapTotalSizeKb * 1024L
+            val totalResult = if (swapTotal > 0L) {
+                "${Formatter.formatShortFileSize(view.context, totalMem)} (+${Formatter.formatShortFileSize(view.context, swapTotal)})"
+            } else {
+                Formatter.formatShortFileSize(view.context, totalMem)
+            }
             val text = String.format(Locale.getDefault(), view.memInfoText, availResult, totalResult)
 
             MAIN_EXECUTOR.handler.post { view.text = text }
